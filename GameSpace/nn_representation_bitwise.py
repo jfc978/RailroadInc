@@ -82,9 +82,9 @@ class NNRailRoadInterpreter:
     
     def search_connected_exits(self,rail_or_road):
         if(rail_or_road == 'rail'):
-            full_board = start_rails.copy();
+            full_board = start_rails;
         else:
-            full_board = start_roads.copy();
+            full_board = start_roads;
         
         networks = [];
         while len(full_board) > 0:
@@ -206,11 +206,8 @@ class NNRailRoadInterpreter:
         
         return [longest_path,length_to_point,farthest_point];
   
-    def get_board_with_tile(self,board,connections):
-        return self.representation.get_board_with_tile(board,connections);
-    
-    def get_board_without_tile(self,board):
-        return self.representation.get_board_without_tile(board);
+    def get_board_with_tile(self,tile):
+        return self.representation.get_board_with_tile(self,tile);
     
     def get_index_move(self,index):
         return self.representation.get_index_move(index);
@@ -255,7 +252,17 @@ class NNRailRoadRepresentation:
             self.update_available_positions();
         return
     
+    def vectorize_board(self,boardSpace):
         
+        return
+    
+    def devectorize_board(self,vectorBoard):
+        
+        return
+    
+    def index_board(self,x,y,z):
+        return index_vector(x,y,z,self.x,self.y,self.layers);
+    
     def set_default_mat(self):
         
         self.board = np.zeros((self.size_x,self.size_y,self.layers),dtype = bool); 
@@ -468,10 +475,10 @@ class NNRailRoadRepresentation:
                 connected_positions.append([vector_xy[0]-1,vector_xy[1]-1]);
         return [connected_positions];
     
-    def get_board_with_tile(self,board,connections):  
-        boards = np.copy(board);
-        boards[:,:,tile_encoding_offset] = np.zeros((self.size_x,self.size_y),dtype = bool);
-        boards[:,:,tile_encoding_offset+1] = np.zeros((self.size_x,self.size_y),dtype = bool);
+    def get_board_with_tile(self,connections):  
+        boards = self.board;
+        boards[:,:,tile_encoding_offset] = np.zeros((self.x,self.y,1),dtype = bool);
+        boards[:,:,tile_encoding_offset+1] = np.zeros((self.x,self.y,1),dtype = bool);
         
     
         #update available positions
@@ -491,14 +498,8 @@ class NNRailRoadRepresentation:
                 boards[3:6,6:9,tile_encoding_offset + c_rail_or_road_offset] = np.ones((3,3),dtype = bool);
             else:
                 boards[3:6,3:6,tile_encoding_offset + c_rail_or_road_offset] = np.ones((3,3),dtype = bool);
-                
         return boards;
         
-    def get_board_without_tile(self,board):
-        boards = np.copy(board);
-        boards[:,:,tile_encoding_offset] = np.zeros((self.size_x,self.size_y),dtype = bool);
-        boards[:,:,tile_encoding_offset+1] = np.zeros((self.size_x,self.size_y),dtype = bool);
-        return boards;
     
     def get_index_move(self,index):
         u = int(index % 4);
@@ -563,9 +564,13 @@ class TileManagerInterface:
         return rotated;
     
     def rotateTile(self,tile,rotation):
-        return;
+        return;   
         
-
+        
+        
+### Free Methods15Potatoes
+def index_vector(x,y,z,a,b,c):
+    return x*(b*c) + y*(c) + z;
     #def get_connections(self,tile,rotation):
         #key-value list of ['rail','up',etc]
         #return

@@ -79,6 +79,16 @@ class emptyGraphics():
     
     def setEvent(self,event):
         return;
+        
+    def resetImage(self):
+        self.roads = np.zeros((7*3,7*3,1), dtype=bool);
+        self.rails = np.zeros((7*3,7*3,1), dtype=bool);
+        
+        self.game_image = Image.fromarray(np.zeros((1,1,3), dtype=np.uint8), 'RGB');
+        return;
+        
+        
+        
 
 class railroadGraphics():
     def __init__(self):

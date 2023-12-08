@@ -16,10 +16,10 @@ from keras import backend as K
 
 class ValueNetwork():
     def __init__(self, max_evl = 300):
-        input_size = (1,5,5,16,1); #[(5x5)*(1 colour 
+        input_size = (1,9,9,18,1); #[(5x5)*(1 colour 
                      # + (4 layers of player one + all ones + 4 layers of player two
                      # + all ones + 4 layers of buildings) * 1 time step)] = 5x5x15
-        output_size = 2; # Win[0], Lose[1]
+        output_size = 1; # Win[0], Lose[1]
     
         # define model
         # deep convolutional network
@@ -35,19 +35,19 @@ class ValueNetwork():
         #    layers.Dense(output_size,activation='softmax')
         #]);
         model = Sequential([
-            layers.Conv3D(64, kernel_size=(3,3,2), input_shape = input_size[1:], padding='same', activation='relu'),
-            layers.MaxPooling3D(pool_size=(2, 2, 1)),
-            layers.Conv3D(64, kernel_size=(3,3,2), padding='same', activation='relu'),
-            layers.MaxPooling3D(pool_size=(2, 2, 1)),
+            layers.Conv3D(16, kernel_size=(1,1,18), input_shape = input_size[1:], padding='same', activation='relu'),
+            layers.MaxPooling3D(pool_size=(2, 2, 18)),
+            layers.Conv3D(16, kernel_size=(3,3,2), padding='same', activation='relu'),
+            layers.MaxPooling3D(pool_size=(3, 3, 1)),
             layers.Dropout(0.2),
             layers.Flatten(),
-            layers.Dense(1024, activation='relu'),
-            layers.Dense(output_size,activation='softmax')
+            layers.Dense(128, activation='relu'),
+            layers.Dense(output_size,activation='sigmoid')
         ]);
     
         # model loss function
         # classification, win or lose
-        opt = keras.optimizers.Adam(learning_rate=0.01);
+        opt = keras.optimizers.Adam(learning_rate=0.0001);
         model.compile(optimizer=opt,
               loss=tf.keras.losses.BinaryCrossentropy())
         self.network = model;
@@ -57,11 +57,11 @@ class ValueNetwork():
         if isinstance(boardSpace, list):
             items = len(boardSpace);
             boardSpace = np.vstack(boardSpace);
-            boardSpace = np.reshape(boardSpace, [items,5,5,16,1]);
+            boardSpace = np.reshape(boardSpace, [items,9,9,18,1]);
             values = self.network.predict(boardSpace, batch_size=items);
             return values[:,0];
         else:
-            boardSpace = np.reshape(boardSpace,[1, 5, 5, 16, 1])
+            boardSpace = np.reshape(boardSpace,[1, 9, 9, 18, 1])
             value = self.network.predict(boardSpace);
             return value[0];
     
@@ -80,8 +80,8 @@ class ValueNetwork():
         return [move_choice, values, ucbs];    
     
     def update(self, boardSpace, value):
-        boardSpace = np.reshape(boardSpace,[1, 5, 5, 16, 1])
-        value = np.reshape(value,[1,2]);
+        boardSpace = np.reshape(boardSpace,[1, 9, 9, 18, 1])
+        value = np.reshape(value,[1,1]);
         self.network.fit(boardSpace, value);
         return;
         

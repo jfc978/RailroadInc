@@ -6,7 +6,6 @@ Monte Carlo Tree Search
 """
 import numpy as np;
 import random;
-from game_environment import Santorini
 
 class MonteCarloSearchTree():
     def __init__(self, moveGenerator, boardEvaluator, winEvaluator, startingPlayer, moveMaker):
@@ -24,10 +23,12 @@ class MonteCarloSearchTree():
         return;
         
     def predict(self, values, boardState):
-        [legalVector, legalMoves] = self.generator(boardState,self.player);
+        [legalVector, legalMoves, nextPlayer] = self.generator(boardState,self.player);
+        
         
         if(len(legalMoves)==0):
-            return [None,-1];
+            score = self.winLoss(boardState);
+            return [None,score];
         
         # create root of tree
         self.root = Node(boardState, 0, None,self.player);
@@ -38,7 +39,7 @@ class MonteCarloSearchTree():
             # create new node for legal moves
             if(x):
                 nodeValue = values[i] + self.winLoss(legalMoves[counter]); #+ self.evaluator(legalMoves[counter]);
-                newNode = Node(legalMoves[counter], nodeValue, self.root, 1-self.player);
+                newNode = Node(legalMoves[counter], nodeValue, self.root, nextPlayer[counter]);
                 [net_wins, num_games] = self.rollout(newNode);  
                 newNode.backprop(net_wins, num_games);
                 
@@ -208,14 +209,14 @@ class Node():
         if(len(self.inactive_children) == 0):
         
             # find all legal moves
-            [vector, legalMoves] = moveGenerator(self.boardSpace,self.player);
+            [vector, legalMoves, next_player] = moveGenerator(self.boardSpace,self.player);
             if(len(legalMoves) == 0):
                 return active_children;
             values = evaluator(legalMoves);
             # create nodes in active search and as children
             for i,x in enumerate(legalMoves):
                 # create new node for legal moves
-                newNode = Node(x, values[i]*0.98, self, 1-self.player); #penalty to promote searching other branches
+                newNode = Node(x, values[i]*0.98, self, next_player[i]); #penalty to promote searching other branches
                 self.children.append(newNode);
                 
             self.inactive_children = list(range(0,len(legalMoves)));

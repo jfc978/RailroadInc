@@ -31,9 +31,9 @@ class railroadTileManager:
             ];
 
         self.dice4 = [
-            railroadTile([[[0,1,0],[0,1,0],[0,1,0]],[[0,0,0],[1,1,1],[0,0,0]]], False, 1/3, 'overpass'),
-            railroadTile([[[0,0,0],[1,0,0],[0,0,0]],[[0,0,0],[0,0,1],[0,0,0]]], False, 1/3, 'straight_station'),
-            railroadTile([[[0,0,0],[1,0,0],[0,0,0]],[[0,0,0],[0,0,0],[0,1,0]]], False, 1/3, 'right_station')
+            railroadTile([[[0,1,0],[0,1,0],[0,1,0]],[[0,0,0],[1,1,1],[0,0,0]]], False, 2/3, 'overpass'),
+            railroadTile([[[0,0,0],[1,0,0],[0,0,0]],[[0,0,0],[0,0,1],[0,0,0]]], False, 1/6, 'straight_station'),
+            railroadTile([[[0,0,0],[1,0,0],[0,0,0]],[[0,0,0],[0,0,0],[0,1,0]]], False, 1/6, 'right_station')
             ];
         
         self.special = [
@@ -85,6 +85,9 @@ class railroadTileManager:
     def rotateTile(self,tile,rotation):
         tile_space = tile.tileShape
         return np.rot90(tile_space,-rotation,axes=(0,1));
+    
+    def decodeTile(self,tile):
+        return tile.tileShape;
         
         
 class railroadTile:

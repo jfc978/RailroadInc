@@ -16,19 +16,19 @@ from keras import backend as K
 
 class PolicyNetwork():
     def __init__(self, batchSize=1):
-        input_size = (batchSize,5,5,16,1); #[(5x5)*(1 colour 
+        input_size = (batchSize,9,9,18,1); #[(5x5)*(1 colour 
                      # + (4 layers of player one + all ones + 4 layers of player two
                      # + all ones + 4 layers of buildings + all ones) * 1 time step)] = 5x5x16
-        output_size = np.prod((5,5,8,8)); #[(8 moving)*(8 building)]*(5x5)
+        output_size = np.prod((7,7,4)); #[(8 moving)*(8 building)]*(5x5)
     
         # define model
         # deep convolutional network
         model = Sequential([
-            layers.Conv3D(64, kernel_size=(3,3,16), input_shape = input_size[1:], padding='same', activation='relu'),
-            layers.Conv3D(128, kernel_size=(3,3,16), padding='same', activation='relu'),
-            layers.MaxPooling3D(pool_size=(2, 2, 4)),
-            layers.Conv3D(256, kernel_size=(3,3,2), padding='same', activation='relu'),
-            layers.Conv3D(256, kernel_size=(3,3,2), padding='same', activation='relu'),
+            layers.Conv3D(16, kernel_size=(3,3,18), input_shape = input_size[1:], padding='same', activation='relu'),
+            layers.Conv3D(16, kernel_size=(3,3,18), padding='same', activation='relu'),
+            layers.MaxPooling3D(pool_size=(2, 2, 18)),
+            layers.Conv3D(32, kernel_size=(3,3,1), padding='same', activation='relu'),
+            layers.Conv3D(32, kernel_size=(3,3,1), padding='same', activation='relu'),
             layers.MaxPooling3D(pool_size=(2, 2, 1)),
             layers.Dropout(0.2),
             layers.Flatten(),
@@ -38,19 +38,19 @@ class PolicyNetwork():
     
         # model loss function
         # regression, minimization of difference between predicted and expected move distributions
-        opt = keras.optimizers.Adam(learning_rate=0.01);
+        opt = keras.optimizers.Adam(learning_rate=0.0001);
         model.compile(optimizer=opt,
               loss=tf.keras.losses.MeanSquaredError())
         self.network = model;
         return
         
     def predict(self, boardSpace):
-        boardSpace = np.reshape(boardSpace,[1, 5, 5, 16, 1])
+        boardSpace = np.reshape(boardSpace,[1, 9, 9, 18, 1])
         distribution = self.network.predict(boardSpace);
         return distribution;
         
     def update(self, boardSpace, valueDistribution):
-        boardSpace = np.reshape(boardSpace,[1, 5, 5, 16, 1])
+        boardSpace = np.reshape(boardSpace,[1, 9, 9, 18, 1])
         self.network.fit(boardSpace, valueDistribution);
         return;
         
